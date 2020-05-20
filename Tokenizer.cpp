@@ -18,13 +18,13 @@ void Tokenizer::generateToken() {
     string cur = it->str();
 
     if (all_of(cur.begin(), cur.end(), ::isdigit))
-        curToken = make_pair("NUMBER", cur);
+        curToken = {"NUMBER", cur};
     else if (cur == "+" || cur == "*")
-        curToken = make_pair("OPERATOR", cur);
+        curToken = {"OPERATOR", cur};
     else if (cur == "(")
-        curToken = make_pair("LEFTPAREN", cur);
+        curToken = {"LEFTPAREN", cur};
     else if (cur == ")")
-        curToken = make_pair("RIGHTPAREN", cur);
+        curToken = {"RIGHTPAREN", cur};
     else
         cout << "Error: Malformed expression." << endl;
 }
@@ -34,7 +34,7 @@ void Tokenizer::advanceToNext() {
         generateToken();
     }
     else {
-        curToken = make_pair("","");
+        curToken = {"",""};
         cout << "End of tokens reached." << endl;
     }
 }

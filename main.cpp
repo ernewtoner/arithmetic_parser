@@ -20,7 +20,6 @@ Do not use the "Shunting Yard" algorithm.
 // ""
 #include <string>
 #include <vector>
-#include <utility>
 #include <algorithm>
 #include <iostream>
 #include <stdlib.h>
@@ -40,8 +39,6 @@ using std::sregex_iterator;
 using std::remove_if;
 using std::all_of;
 using std::ispunct;
-using std::pair;
-using std::make_pair;
 
 void checkIfValidExpression(string expr) 
 {
@@ -82,44 +79,44 @@ int main(int argc, char** argv)
     //evalExpression("-100");
 
     Tokenizer t("1 + 1");
-    pair<string, string> t1 = t.getCurToken();
-    cout << "getCurToken() : " << t1.first << " " << t1.second << '\n';
+    Token t1 = t.getCurToken();
+    cout << "getCurToken() : " << t1.type << " " << t1.value << '\n';
     t.advanceToNext();
-    pair<string, string> tk2 = t.getCurToken();
-    cout << "getCurToken() : " << tk2.first << " " << tk2.second << '\n';
+    Token tk2 = t.getCurToken();
+    cout << "getCurToken() : " << tk2.type << " " << tk2.value << '\n';
     t.advanceToNext();
-    pair<string, string> t3 = t.getCurToken();
-    cout << "getCurToken() : " << t3.first << " " << t3.second << '\n';
+    Token t3 = t.getCurToken();
+    cout << "getCurToken() : " << t3.type << " " << t3.value << '\n';
     t.advanceToNext();
-    pair<string, string> t4 = t.getCurToken();
-    cout << "getCurToken(), #4 should be out : " << t4.first << " " << t4.second << '\n';
+    Token t4 = t.getCurToken();
+    cout << "getCurToken(), #4 should be out : " << t4.type << " " << t4.value << '\n';
 
     Tokenizer t2("(3 + 4) * 6");
-    pair<string, string> tok1 = t2.getCurToken();
-    cout << "Tokenizer current token: " << tok1.first << " " << tok1.second << '\n';
+    Token tok1 = t2.getCurToken();
+    cout << "Tokenizer current token: " << tok1.type << " " << tok1.value << '\n';
     t2.advanceToNext();
-    pair<string, string> tok2 = t2.getCurToken();
-    cout << "Tokenizer current token: " << tok2.first << " " << tok2.second << '\n';
+    Token tok2 = t2.getCurToken();
+    cout << "Tokenizer current token: " << tok2.type << " " << tok2.value << '\n';
     t2.advanceToNext();
-    pair<string, string> tok3 = t2.getCurToken();
-    cout << "Tokenizer current token: " << tok3.first << " " << tok3.second << '\n';
-    pair<string, string> tok4 = t2.getCurToken();
-    cout << "Tokenizer current token: " << tok4.first << " " << tok4.second << '\n';
+    Token tok3 = t2.getCurToken();
+    cout << "Tokenizer current token: " << tok3.type << " " << tok3.value << '\n';
+    Token tok4 = t2.getCurToken();
+    cout << "Tokenizer current token: " << tok4.type << " " << tok4.value << '\n';
     t2.advanceToNext();
-    pair<string, string> tok5 = t2.getCurToken();
-    cout << "Tokenizer current token: " << tok5.first << " " << tok5.second << '\n';
+    Token tok5 = t2.getCurToken();
+    cout << "Tokenizer current token: " << tok5.type << " " << tok5.value << '\n';
     t2.advanceToNext();
-    pair<string, string> tok6 = t2.getCurToken();
-    cout << "Tokenizer current token: " << tok6.first << " " << tok6.second << '\n';
+    Token tok6 = t2.getCurToken();
+    cout << "Tokenizer current token: " << tok6.type << " " << tok6.value << '\n';
     t2.advanceToNext();
-    pair<string, string> tok7 = t2.getCurToken();
-    cout << "Tokenizer current token: " << tok7.first << " " << tok7.second << '\n';
+    Token tok7 = t2.getCurToken();
+    cout << "Tokenizer current token: " << tok7.type << " " << tok7.value << '\n';
     t2.advanceToNext();
-    pair<string, string> tok8 = t2.getCurToken();
-    cout << "Tokenizer current token: " << tok8.first << " " << tok8.second << '\n';
+    Token tok8 = t2.getCurToken();
+    cout << "Tokenizer current token: " << tok8.type << " " << tok8.value << '\n';
     t2.advanceToNext();
-    pair<string, string> tok9 = t2.getCurToken();
-    cout << "Tokenizer current token: " << tok9.first << " " << tok9.second << '\n';
+    Token tok9 = t2.getCurToken();
+    cout << "Tokenizer current token: " << tok9.type << " " << tok9.value << '\n';
 
     return 0;
 }

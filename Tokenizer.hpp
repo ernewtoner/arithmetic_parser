@@ -3,26 +3,29 @@
 
 #include <string>
 #include <iostream>
-#include <utility>
 #include <regex>
 
 using std::string;
-using std::pair;
-using std::make_pair;
 using std::regex;
 using std::sregex_iterator;
 using std::cout;
 using std::endl;
 
+struct Token 
+{
+    string type;
+    string value;
+};
+
 class Tokenizer {
 private:
     sregex_iterator it, end_it;
     regex r;
-    pair<string, string> curToken;
+    Token curToken;
 public:
     Tokenizer(string expr);
     void generateToken();
-    pair<string, string> getCurToken() { return curToken; }
+    Token getCurToken() { return curToken; }
     void advanceToNext();
 };
 

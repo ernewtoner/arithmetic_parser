@@ -1,31 +1,29 @@
 #include "Evaluator.hpp"
-#include <utility>
 
 using std::string;
 using std::stoi;
-using std::pair;
 
 Evaluator::Evaluator() {
 }
 
 int Evaluator::compute_atom(Tokenizer t) 
 {
-    pair<string, string> tok = t.getCurToken();
-    if (tok.first == "LEFTPAREN") {
+    Token tok = t.getCurToken();
+    if (tok.type == "LEFTPAREN") {
         t.advanceToNext();
         int val = compute_expr(t, 1);
-        if (t.getCurToken().first != "RIGHTPAREN")
+        if (t.getCurToken().type != "RIGHTPAREN")
             perror("unmatched right paren");
         t.advanceToNext();
         return val;
     }
-    else if (tok.first == "")
+    else if (tok.type == "")
         perror("fail");
-    else if (tok.first == "OPERATOR")
+    else if (tok.type == "OPERATOR")
         perror("expected atom, got an operator");
     else {
         t.advanceToNext();
-        return stoi(tok.second);
+        return stoi(tok.value);
     }
 }
 
