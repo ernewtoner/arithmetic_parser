@@ -20,9 +20,11 @@ Do not use the "Shunting Yard" algorithm.
 // ""
 #include <string>
 #include <vector>
+#include <utility>
 #include <algorithm>
 #include <iostream>
 #include <stdlib.h>
+#include <cctype>
 #include <regex>
 
 using std::string;
@@ -33,19 +35,22 @@ using std::endl;
 using std::stoi;
 using std::regex;
 using std::sregex_iterator;
-using std::smatch;
 using std::remove_if;
+using std::all_of;
+using std::ispunct;
+using std::pair;
+using std::make_pair;
 
 class Tokenizer
 {
 private:
-    vector<string> tokens;
+    vector<pair<string, string>> tokens;
     int curIndex;
-    string curToken;
+    pair<string, string> curToken;
 public:
     Tokenizer(string expr);
-    string getCurToken();
-    string getNextToken();
+    pair<string, string> getCurToken();
+    pair<string, string> getNextToken();
 };
 
 Tokenizer::Tokenizer(string expr)
@@ -56,39 +61,40 @@ Tokenizer::Tokenizer(string expr)
     // Match numbers, operators, and parentheses 
     // Store matched string tokens in object's vector
     regex r ("\\s*(?:(\\d+)|(.))"); 
-    for (sregex_iterator it(expr.begin(), expr.end(), r), end_it; it != end_it; ++it)
-        tokens.emplace_back(it->str());
+    for (sregex_iterator it(expr.begin(), expr.end(), r), end_it; it != end_it; ++it) {
+        string cur = it->str();
+
+        if (all_of(cur.begin(), cur.end(), ::isdigit))
+            tokens.emplace_back(make_pair("NUMBER", cur));
+        else if (cur == "+" || cur == "*")
+            tokens.emplace_back(make_pair("OPERATOR", cur));
+        else if (cur == "(")
+            tokens.emplace_back(make_pair("LEFTPAREN", cur));
+        else if (cur == ")")
+            tokens.emplace_back(make_pair("RIGHTPAREN", cur));
+        else 
+            // throw error
+            perror("Malformed expression.");
+    }
+
+    for (pair<string, string> p : tokens)
+        cout << p.first << " " << p.second << endl;
 
     curIndex = 0;
     curToken = tokens[0];
 }
 
-string Tokenizer::getCurToken() { return curToken; }
-string Tokenizer::getNextToken()
+pair<string, string> Tokenizer::getCurToken() { return curToken; }
+pair<string, string> Tokenizer::getNextToken() 
 {
-    if (curIndex != tokens.size() - 1) {
+   if (curIndex != tokens.size() - 1) {
         curIndex += 1;
         curToken = tokens[curIndex];
         return curToken;
     }
 
-    return "Error: End of tokens reached.";
+    return make_pair("ERROR", "End of tokens reached.");
 }
-
-/*void tokenize(string expr)
-{
-    vector<string> v;
-    smatch m;
-    regex r ("\\s*(?:(\\d+)|(.))");
-
-    expr.erase(remove_if(expr.begin(), expr.end(), isspace), expr.end());
-
-    for (sregex_iterator it(expr.begin(), expr.end(), r), end_it; it != end_it; ++it)
-        v.emplace_back(it->str());
-    
-    for (string tok : v)
-        cout << "Tok: " << tok << endl;
-}*/
 
 void checkIfValidExpression(string expr) 
 {
@@ -129,23 +135,21 @@ int main(int argc, char** argv)
     //evalExpression("1");
     //evalExpression("-100");
 
-    //tokenize("1 + 1");
     Tokenizer t("1 + 1");
-    cout << "Tokenizer current token: " << t.getCurToken() << endl;
-    cout << "Tokenizer current token: " << t.getNextToken() << endl;
-    cout << "Tokenizer current token: " << t.getNextToken() << endl;
-    cout << "Tokenizer current token: " << t.getNextToken() << endl;
+    cout << "Tokenizer current token: " << t.getCurToken().first << " " << t.getCurToken().second << endl;
+    cout << "Tokenizer current token: " << t.getNextToken().first << " " << t.getCurToken().second << endl;
+    cout << "Tokenizer current token: " << t.getNextToken().first << " " << t.getCurToken().second << endl;
+    cout << "Tokenizer current token: " << t.getNextToken().first << " " << t.getCurToken().second << endl;
 
     Tokenizer t2("(3 + 4) * 6");
-    cout << "Tokenizer current token: " << t2.getCurToken() << endl;
-    cout << "Tokenizer current token: " << t2.getNextToken() << endl;
-    cout << "Tokenizer current token: " << t2.getNextToken() << endl;
-    cout << "Tokenizer current token: " << t2.getNextToken() << endl;
-    cout << "Tokenizer current token: " << t2.getCurToken() << endl;
-    cout << "Tokenizer current token: " << t2.getNextToken() << endl;
-    cout << "Tokenizer current token: " << t2.getNextToken() << endl;
-    cout << "Tokenizer current token: " << t2.getNextToken() << endl;
-    cout << "Tokenizer current token: " << t2.getNextToken() << endl;
+    cout << "Tokenizer current token: " << t2.getCurToken().first << " " << t2.getCurToken().second << endl;
+    cout << "Tokenizer current token: " << t2.getNextToken().first << " " << t2.getCurToken().second << endl;
+    cout << "Tokenizer current token: " << t2.getNextToken().first << " " << t2.getCurToken().second << endl;
+    cout << "Tokenizer current token: " << t2.getNextToken().first << " " << t2.getCurToken().second << endl;
+    cout << "Tokenizer current token: " << t2.getNextToken().first << " " << t2.getCurToken().second << endl;
+    cout << "Tokenizer current token: " << t2.getNextToken().first << " " << t2.getCurToken().second << endl;
+    cout << "Tokenizer current token: " << t2.getNextToken().first << " " << t2.getCurToken().second << endl;
+    cout << "Tokenizer current token: " << t2.getNextToken().first << " " << t2.getCurToken().second << endl;
 
     return 0;
 }
