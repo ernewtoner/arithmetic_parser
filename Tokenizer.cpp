@@ -12,18 +12,16 @@ Tokenizer::Tokenizer(string expr) {
     *expression = expr;
 
     // Match numbers, operators, and parentheses
-    r = new regex("\\s*(?:(\\d+)|(.))");
-    it = new sregex_iterator(expression->begin(), expression->end(), *r);
+    r = ("\\s*(?:(\\d+)|(.))");
+    it = new sregex_iterator(expression->begin(), expression->end(), r);
 
-    curToken = new Token;
+    //curToken = new Token;
     generateToken();
 }
 
 Tokenizer::~Tokenizer() {
-    delete curToken;
-    delete r;
-    delete it;
     delete expression;
+    delete it;
 }
 
 void Tokenizer::generateToken() {
@@ -32,24 +30,24 @@ void Tokenizer::generateToken() {
     //cout << "Tokenizer generateToken() cur: [" << cur << "]\n";
 
     if (all_of(cur.begin(), cur.end(), ::isdigit))
-        *curToken = {"NUMBER", cur};
+        curToken = {"NUMBER", cur};
     else if (cur == "+" || cur == "*" || cur == "-" || cur == "/")
-        *curToken = {"OPERATOR", cur};
+        curToken = {"OPERATOR", cur};
     else if (cur == "(")
-        *curToken = {"LEFTPAREN", cur};
+        curToken = {"LEFTPAREN", cur};
     else if (cur == ")")
-        *curToken = {"RIGHTPAREN", cur};
+        curToken = {"RIGHTPAREN", cur};
     else
         cout << "Error: Malformed expression." << endl;
 }
 
 void Tokenizer::advanceToNext() {
-    if (++(*it)!= sregex_iterator({})) {
+    if (++(*it)!= sregex_iterator()) {
         //cout << "Tokenizer advanceToNext() cur: [" << it->str() << "]\n";
         generateToken();
     }
     else {
-        *curToken = {"",""};
+        curToken = {"",""};
         cout << "End of tokens reached." << endl;
     }
 }

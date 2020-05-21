@@ -19,15 +19,15 @@ struct Token
 
 class Tokenizer {
 private:
-    sregex_iterator* it;
-    regex* r;
-    Token* curToken;
     string* expression;
+    sregex_iterator* it;
+    regex r;
+    Token curToken;
 public:
     Tokenizer(string expr);
     ~Tokenizer();
     void generateToken();
-    Token getCurToken() { return *curToken; }
+    Token getCurToken() { return curToken; }
     void advanceToNext();
 };
 
