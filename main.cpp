@@ -27,6 +27,7 @@ Do not use the "Shunting Yard" algorithm.
 #include <regex>
 
 #include "Tokenizer.hpp"
+#include "Evaluator.hpp"
 
 using std::string;
 using std::vector;
@@ -71,14 +72,14 @@ void evalExpression(string expr)
 
 int main(int argc, char** argv)
 {
-    evalExpression("");
-    evalExpression("(()");
-    evalExpression("(())");
+    //evalExpression("");
+    //evalExpression("(()");
+    //evalExpression("(())");
 
     //evalExpression("1");
     //evalExpression("-100");
 
-    Tokenizer t("1 + 1");
+   /* Tokenizer t("1 + 1");
     Token t1 = t.getCurToken();
     cout << "getCurToken() : " << t1.type << " " << t1.value << '\n';
     t.advanceToNext();
@@ -89,9 +90,31 @@ int main(int argc, char** argv)
     cout << "getCurToken() : " << t3.type << " " << t3.value << '\n';
     t.advanceToNext();
     Token t4 = t.getCurToken();
-    cout << "getCurToken(), #4 should be out : " << t4.type << " " << t4.value << '\n';
+    cout << "getCurToken(), #4 should be out : " << t4.type << " " << t4.value << '\n' << '\n';*/
 
-    Tokenizer t2("(3 + 4) * 6");
+    Evaluator e;
+    Tokenizer* t2 = new Tokenizer("1 + 1");
+    int result = e.compute_expr(t2, 1);
+    cout << ">>>> 1 + 1 result <<<< " << result << endl;
+
+    Tokenizer* t3 = new Tokenizer("3 * 3");
+    result = e.compute_expr(t3, 1);
+    cout << ">>>> 3 * 3 result <<<< " << result << endl;
+
+    Tokenizer* t4 = new Tokenizer("(3 + 4) * 6");
+    result = e.compute_expr(t4, 1);
+    cout << ">>>> (3 + 4) * 6 result <<<< " << result << endl;
+
+    Tokenizer t5("(1 * 4) + (5 * 2)");
+    result = e.compute_expr(&t5, 1);
+    cout << ">>>> (1 * 4) + (5 * 2) result <<<< " << result << endl;
+
+    //Tokenizer t5("(1 * 4) + (5 * 2)");
+    //t5->getCurToken();
+    //t5.advanceToNext();
+    //t5->getCurToken();
+
+   /* Tokenizer t2("(3 + 4) * 6");
     Token tok1 = t2.getCurToken();
     cout << "Tokenizer current token: " << tok1.type << " " << tok1.value << '\n';
     t2.advanceToNext();
@@ -116,7 +139,7 @@ int main(int argc, char** argv)
     cout << "Tokenizer current token: " << tok8.type << " " << tok8.value << '\n';
     t2.advanceToNext();
     Token tok9 = t2.getCurToken();
-    cout << "Tokenizer current token: " << tok9.type << " " << tok9.value << '\n';
+    cout << "Tokenizer current token: " << tok9.type << " " << tok9.value << '\n';*/
 
     return 0;
 }

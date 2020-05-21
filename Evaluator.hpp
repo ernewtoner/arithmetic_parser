@@ -19,8 +19,8 @@ private:
         {"/", 2} };
 public:
     Evaluator();
-    int compute_atom(Tokenizer);
-    int compute_expr(Tokenizer, int min_prec);
+    int compute_atom(Tokenizer*);
+    int compute_expr(Tokenizer*, int min_prec);
     int compute_op(string op, int lhs, int rhs);
 };
 
