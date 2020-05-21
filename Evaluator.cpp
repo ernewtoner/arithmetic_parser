@@ -8,15 +8,15 @@ Evaluator::Evaluator() {
 }
 
 // Atoms are either numbers or parenthesized expressions
-int Evaluator::compute_atom(Tokenizer* tokenizer) 
+double Evaluator::compute_atom(Tokenizer* tokenizer) 
 {
     Token tok = tokenizer->getCurToken();
-    cout << "compute_atom called with [" << tok.type << "] [" << tok.value << "]\n";
+    //cout << "compute_atom called with [" << tok.type << "] [" << tok.value << "]\n";
 
     if (tok.type == "LEFTPAREN") {
         tokenizer->advanceToNext();
-        cout << "compute_atom advanced to [" << tokenizer->getCurToken().type << "] [" << tokenizer->getCurToken().value << "]\n";
-        int val = compute_expr(tokenizer, 1);
+        //cout << "compute_atom advanced to [" << tokenizer->getCurToken().type << "] [" << tokenizer->getCurToken().value << "]\n";
+        double val = compute_expr(tokenizer, 1);
 
         if (tokenizer->getCurToken().type != "RIGHTPAREN")
             perror("unmatched right parenthesis");
@@ -37,15 +37,15 @@ int Evaluator::compute_atom(Tokenizer* tokenizer)
 }
 
 // Expressions consist of atoms connected by operators
-int Evaluator::compute_expr(Tokenizer* tokenizer, int min_prec)
+double Evaluator::compute_expr(Tokenizer* tokenizer, int min_prec)
 {
     Token temp = tokenizer->getCurToken();
-    cout << "compute_expr called with [" << temp.type << "] [" << temp.value << "]" << endl;
-    int atom_lhs = compute_atom(tokenizer);
+    //cout << "compute_expr called with [" << temp.type << "] [" << temp.value << "]" << endl;
+    double atom_lhs = compute_atom(tokenizer);
 
     while (true) {
         Token cur = tokenizer->getCurToken();
-        cout << "cur.type [" << cur.type << "] cur.value [" << cur.value << "]" << endl;
+        //cout << "cur.type [" << cur.type << "] cur.value [" << cur.value << "]" << endl;
         
         if (cur.value == "" || cur.type != "OPERATOR"
                             || opInfo.find(cur.value) == opInfo.end() // op not found
@@ -55,12 +55,12 @@ int Evaluator::compute_expr(Tokenizer* tokenizer, int min_prec)
         // Get operator's precedence and compute minimal precedence for recursive call
         string op = cur.value;
         int prec = opInfo[op];
-        cout << "prec: " << prec << endl;
+        //cout << "prec: " << prec << endl;
         int next_min_prec = prec + 1; // implement assoc if wanted
 
         // Consume current token and prepare next for recursive call
         tokenizer->advanceToNext();
-        int atom_rhs = compute_expr(tokenizer, next_min_prec);
+        double atom_rhs = compute_expr(tokenizer, next_min_prec);
 
         // Update lhs with new value
         //cout << "atom_lhs " << atom_lhs << " atom_rhs " << atom_rhs << endl; 
@@ -71,13 +71,17 @@ int Evaluator::compute_expr(Tokenizer* tokenizer, int min_prec)
     return atom_lhs;
 }
 
-int Evaluator::compute_op(string op, int lhs, int rhs)
+double Evaluator::compute_op(string op, double lhs, double rhs)
 {
-    cout << "compute_op lhs : " << lhs << " rhs: " << rhs << endl;
+    //cout << "compute_op lhs : " << lhs << " rhs: " << rhs << endl;
     if (op == "+")
         return lhs + rhs;
+    else if (op == "-")
+        return lhs - rhs;
     else if (op == "*")
         return lhs * rhs;
+    else if (op == "/")
+        return lhs / rhs;
     else
         perror("unknown operator");
 }

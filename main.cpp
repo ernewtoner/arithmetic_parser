@@ -94,7 +94,7 @@ int main(int argc, char** argv)
 
     Evaluator e;
     Tokenizer* t2 = new Tokenizer("1 + 1");
-    int result = e.compute_expr(t2, 1);
+    double result = e.compute_expr(t2, 1);
     cout << ">>>> 1 + 1 result <<<< " << result << endl;
 
     Tokenizer* t3 = new Tokenizer("3 * 3");
@@ -108,6 +108,18 @@ int main(int argc, char** argv)
     Tokenizer t5("(1 * 4) + (5 * 2)");
     result = e.compute_expr(&t5, 1);
     cout << ">>>> (1 * 4) + (5 * 2) result <<<< " << result << endl;
+
+    Tokenizer* t6 = new Tokenizer("3 / 3");
+    result = e.compute_expr(t6, 1);
+    cout << ">>>> 3 / 3 result <<<< " << result << endl;
+
+    Tokenizer* t7 = new Tokenizer("(3 / 4) * 6");
+    result = e.compute_expr(t7, 1);
+    cout << ">>>> (3 / 4) * 6 result <<<< " << result << endl;
+
+    Tokenizer t8("(1 - 4) + (5 - 2)");
+    result = e.compute_expr(&t8, 1);
+    cout << ">>>> (1 - 4) + (5 - 2) result <<<< " << result << endl;
 
     //Tokenizer t5("(1 * 4) + (5 * 2)");
     //t5->getCurToken();

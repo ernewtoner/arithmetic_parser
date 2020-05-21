@@ -29,11 +29,11 @@ Tokenizer::~Tokenizer() {
 void Tokenizer::generateToken() {
     string cur = (*it)->str();
 
-    cout << "Tokenizer generateToken() cur: [" << cur << "]\n";
+    //cout << "Tokenizer generateToken() cur: [" << cur << "]\n";
 
     if (all_of(cur.begin(), cur.end(), ::isdigit))
         *curToken = {"NUMBER", cur};
-    else if (cur == "+" || cur == "*")
+    else if (cur == "+" || cur == "*" || cur == "-" || cur == "/")
         *curToken = {"OPERATOR", cur};
     else if (cur == "(")
         *curToken = {"LEFTPAREN", cur};
