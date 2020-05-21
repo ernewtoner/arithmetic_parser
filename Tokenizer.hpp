@@ -19,9 +19,9 @@ struct Token
 
 class Tokenizer {
 private:
-    string* expression;
-    sregex_iterator* it;
+    string expr; // Mathematical expression to tokenize
     regex r;
+    sregex_iterator it;
     Token curToken;
 public:
     Tokenizer(string expr);

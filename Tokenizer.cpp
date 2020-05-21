@@ -3,29 +3,25 @@
 using std::remove_if;
 using std::all_of;
 
-Tokenizer::Tokenizer(string expr) {
+Tokenizer::Tokenizer(string str) {
     // Erase expression's whitespace
-    expr.erase(remove_if(expr.begin(), expr.end(), isspace), expr.end());
+    str.erase(remove_if(str.begin(), str.end(), isspace), str.end());
 
-    cout << "expr: " << expr << endl;
-    expression = new string;
-    *expression = expr;
+    cout << "expr: " << str << endl;
+    expr = str;
 
     // Match numbers, operators, and parentheses
     r = ("\\s*(?:(\\d+)|(.))");
-    it = new sregex_iterator(expression->begin(), expression->end(), r);
+    it = sregex_iterator(expr.begin(), expr.end(), r);
 
-    //curToken = new Token;
     generateToken();
 }
 
 Tokenizer::~Tokenizer() {
-    delete expression;
-    delete it;
 }
 
 void Tokenizer::generateToken() {
-    string cur = (*it)->str();
+    string cur = it->str();
 
     //cout << "Tokenizer generateToken() cur: [" << cur << "]\n";
 
@@ -42,7 +38,7 @@ void Tokenizer::generateToken() {
 }
 
 void Tokenizer::advanceToNext() {
-    if (++(*it)!= sregex_iterator()) {
+    if (++it != sregex_iterator()) {
         //cout << "Tokenizer advanceToNext() cur: [" << it->str() << "]\n";
         generateToken();
     }
