@@ -1,51 +1,80 @@
 #include "Evaluator.hpp"
+#include <limits>
 #include <assert.h>
 
 using std::string;
-using std::stoi;
+using std::stol;
+using std::make_shared;
+using std::numeric_limits;
 
 Evaluator::Evaluator() {
 }
 
-// Atoms are either numbers or parenthesized expressions
-double Evaluator::compute_atom(Tokenizer* tokenizer) 
-{
-    Token tok = tokenizer->getCurToken();
-    //cout << "compute_atom called with [" << tok.type << "] [" << tok.value << "]\n";
+double Evaluator::evalError(string errMsg) {
+    internalTokenizer.reset();
+    
+    if (errMsg != "default")
+        cout << errMsg << endl << endl;
+    else
+        cout << "Invalid expression, returning error code inf." << endl << endl;
 
+    return numeric_limits<double>::infinity();
+}
+
+double Evaluator::eval(string expr) {
+    internalTokenizer = make_shared<Tokenizer>(expr);
+
+    if (internalTokenizer->isValidExpression() == false) {
+        return evalError("Invalid expression.");
+    }
+
+    double result = computeExpr(internalTokenizer, 1); 
+    cout << "Result: " << result << endl << endl;
+
+    return result;
+}
+
+/* computeAtom(): Computes the value of an atom, which is either numbers 
+*  or parenthesized expressions.
+*  Input: pointer to Tokenizer object
+*  Returns: double 
+*/
+double Evaluator::computeAtom(shared_ptr<Tokenizer> tokenizer) {
+    Token tok = tokenizer->getCurToken();
+    
     if (tok.type == "LEFTPAREN") {
         tokenizer->advanceToNext();
-        //cout << "compute_atom advanced to [" << tokenizer->getCurToken().type << "] [" << tokenizer->getCurToken().value << "]\n";
-        double val = compute_expr(tokenizer, 1);
+        double val = computeExpr(tokenizer, 1);
 
-        if (tokenizer->getCurToken().type != "RIGHTPAREN")
-            perror("unmatched right parenthesis");
-        
+        if (tokenizer->getCurToken().type != "RIGHTPAREN") {
+             return evalError("Unmatched left parenthesis.");
+        }
+           
         tokenizer->advanceToNext();
         return val;
     }
     else if (tok.type == "")
-        perror("fail");
+        return evalError("Malformed token.");
     else if (tok.type == "OPERATOR")
-        perror("expected atom, got an operator");
+        return evalError("Expected atom, got an operator.");
     else {
         // Number
         assert(tok.type == "NUMBER");
         tokenizer->advanceToNext();
-        return stoi(tok.value);
+        return stoll(tok.value);
     }
 }
 
-// Expressions consist of atoms connected by operators
-double Evaluator::compute_expr(Tokenizer* tokenizer, int min_prec)
-{
-    Token temp = tokenizer->getCurToken();
-    //cout << "compute_expr called with [" << temp.type << "] [" << temp.value << "]" << endl;
-    double atom_lhs = compute_atom(tokenizer);
+/* computeExpr(): Computes the value of an expression, which consists of
+*  atoms connected by operators.
+*  Input: pointer to Tokenizer object
+*  Returns: double
+*/
+double Evaluator::computeExpr(shared_ptr<Tokenizer> tokenizer, int min_prec) {
+    double atom_lhs = computeAtom(tokenizer);
 
     while (true) {
         Token cur = tokenizer->getCurToken();
-        //cout << "cur.type [" << cur.type << "] cur.value [" << cur.value << "]" << endl;
         
         if (cur.value == "" || cur.type != "OPERATOR"
                             || opInfo.find(cur.value) == opInfo.end() // op not found
@@ -55,25 +84,27 @@ double Evaluator::compute_expr(Tokenizer* tokenizer, int min_prec)
         // Get operator's precedence and compute minimal precedence for recursive call
         string op = cur.value;
         int prec = opInfo[op];
-        //cout << "prec: " << prec << endl;
+
         int next_min_prec = prec + 1; // implement assoc if wanted
 
         // Consume current token and prepare next for recursive call
         tokenizer->advanceToNext();
-        double atom_rhs = compute_expr(tokenizer, next_min_prec);
+        double atom_rhs = computeExpr(tokenizer, next_min_prec);
 
         // Update lhs with new value
-        //cout << "atom_lhs " << atom_lhs << " atom_rhs " << atom_rhs << endl; 
-        atom_lhs = compute_op(op, atom_lhs, atom_rhs);
-        //cout << "atom_lhs result: " << atom_lhs << endl;
+        atom_lhs = computeOp(op, atom_lhs, atom_rhs);
     }
 
     return atom_lhs;
 }
 
-double Evaluator::compute_op(string op, double lhs, double rhs)
-{
-    //cout << "compute_op lhs : " << lhs << " rhs: " << rhs << endl;
+/* computeOp(): Performs the actual arithmetic of the mathematical expression.
+*  Input: string containing operator, left and right hand side of expression
+*  Returns: double
+*/
+double Evaluator::computeOp(string op, double lhs, double rhs) {
+    internalTokenizer.reset();
+
     if (op == "+")
         return lhs + rhs;
     else if (op == "-")
@@ -83,5 +114,5 @@ double Evaluator::compute_op(string op, double lhs, double rhs)
     else if (op == "/")
         return lhs / rhs;
     else
-        perror("unknown operator");
+        return evalError("Unknown operator.");
 }

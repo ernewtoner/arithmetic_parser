@@ -1,10 +1,10 @@
-all: evalArithmeticExpressions
+all: evalArithmeticExpression
 
 CPPFLAGS= -std=c++11
 OBJS=Tokenizer.o Evaluator.o main.o
 ALLHEADERS=Tokenizer.hpp Evaluator.hpp
 
-evalArithmeticExpressions: $(OBJS)
+evalArithmeticExpression: $(OBJS)
 	g++ -g $(OBJS) -o $@
 
 Tokenizer.o: Tokenizer.cpp $(ALLHEADERS)
@@ -20,4 +20,4 @@ main.o: main.cpp $(ALLHEADERS)
 	g++ -c $(CPPFLAGS) $< -o $@
 
 clean:
-	rm -f *.o evalArithmeticExpressions
+	rm -f *.o evalArithmeticExpression

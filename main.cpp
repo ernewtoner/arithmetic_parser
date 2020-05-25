@@ -25,6 +25,9 @@ Do not use the "Shunting Yard" algorithm.
 #include <stdlib.h>
 #include <cctype>
 #include <regex>
+#include <string.h>
+#include <assert.h>
+#include <limits>
 
 #include "Tokenizer.hpp"
 #include "Evaluator.hpp"
@@ -39,119 +42,45 @@ using std::regex;
 using std::sregex_iterator;
 using std::remove_if;
 using std::all_of;
-using std::ispunct;
+using std::numeric_limits;
 
-void checkIfValidExpression(string expr) 
-{
-    if (expr.length() == 0)
-        cout << "Error: Empty expression" << endl;
+void testEvaluator(Evaluator E) {
+  // Evaluator's result if anything goes wrong
+  double infinity = numeric_limits<double>::infinity();
 
-    int leftParenCount = count(expr.begin(), expr.end(), '(');
-    int rightParenCount = count(expr.begin(), expr.end(), ')');
-
-    if (leftParenCount != rightParenCount) {
-        cout << "Error: " << expr << " is malformed." << endl;
-        //exit(1);
-    }
-
-    // If operator count != number of operands - 1
-    //     malformed
-}
-
-void evalExpression(string expr)
-{
-    //cout << expr << endl;
-    //cout << expr.length() << endl;
-
-    if (expr.length() == 1)
-        cout << stoi(expr) << endl; // Expression in int form
-
-    checkIfValidExpression(expr);
-
+  assert(E.eval("1 + 1") == 2);
+  assert(E.eval("10 + 100") == 110);
+  assert(E.eval("3 * 3") == 9);
+  assert(E.eval("(3 + 4) * 6") == 42);
+  assert(E.eval("(1 * 4) + (5 * 2)") == 14);
+  assert(E.eval("3 / 3") == 1);
+  assert(E.eval("(3 / 4) * 6") == 4.5);
+  assert(E.eval("(1 - 4) + (5 - 2)") == 0);
+  assert(E.eval("(3) + (4) - (5 + 5)") == -3);
+  assert(E.eval("()") == infinity);
+  assert(E.eval("5") == 5);
+  assert(E.eval("5 5 5") == 555);
+  assert(E.eval("(((()") == infinity);
+  assert(E.eval("(((())))") == infinity);
+  assert(E.eval("a b c d e f(((())))9 3 5 85") == infinity);
+  assert(E.eval("(-10 + 10) + (-100 + 100)") == infinity);
+  assert(E.eval("-50 + -100") == infinity);
+  assert(E.eval("3 / 0") == infinity);
+  assert(E.eval("* / (-(-(-(-50)))) + + -100") == infinity);
+  assert(E.eval("(()3))(") == infinity);
+  assert(E.eval("((3))") == 3);
 }
 
 int main(int argc, char** argv)
 {
-    //evalExpression("");
-    //evalExpression("(()");
-    //evalExpression("(())");
+  Evaluator E;
 
-    //evalExpression("1");
-    //evalExpression("-100");
+  if (argc < 2)
+    cout << "Usage: ./evalExpression \"expression\" or ./evalExpression -test" << endl;
+  else if (argc == 2 && strcmp(argv[1], "-t") == 0 || strcmp(argv[1], "-test") == 0)
+    testEvaluator(E);
+  else if (argc == 2)
+    E.eval(string(argv[1]));
 
-   /* Tokenizer t("1 + 1");
-    Token t1 = t.getCurToken();
-    cout << "getCurToken() : " << t1.type << " " << t1.value << '\n';
-    t.advanceToNext();
-    Token tk2 = t.getCurToken();
-    cout << "getCurToken() : " << tk2.type << " " << tk2.value << '\n';
-    t.advanceToNext();
-    Token t3 = t.getCurToken();
-    cout << "getCurToken() : " << t3.type << " " << t3.value << '\n';
-    t.advanceToNext();
-    Token t4 = t.getCurToken();
-    cout << "getCurToken(), #4 should be out : " << t4.type << " " << t4.value << '\n' << '\n';*/
-
-    Evaluator e;
-    Tokenizer* t2 = new Tokenizer("1 + 1");
-    double result = e.compute_expr(t2, 1);
-    cout << ">>>> 1 + 1 result <<<< " << result << endl;
-
-    Tokenizer* t3 = new Tokenizer("3 * 3");
-    result = e.compute_expr(t3, 1);
-    cout << ">>>> 3 * 3 result <<<< " << result << endl;
-
-    Tokenizer* t4 = new Tokenizer("(3 + 4) * 6");
-    result = e.compute_expr(t4, 1);
-    cout << ">>>> (3 + 4) * 6 result <<<< " << result << endl;
-
-    Tokenizer t5("(1 * 4) + (5 * 2)");
-    result = e.compute_expr(&t5, 1);
-    cout << ">>>> (1 * 4) + (5 * 2) result <<<< " << result << endl;
-
-    Tokenizer* t6 = new Tokenizer("3 / 3");
-    result = e.compute_expr(t6, 1);
-    cout << ">>>> 3 / 3 result <<<< " << result << endl;
-
-    Tokenizer* t7 = new Tokenizer("(3 / 4) * 6");
-    result = e.compute_expr(t7, 1);
-    cout << ">>>> (3 / 4) * 6 result <<<< " << result << endl;
-
-    Tokenizer t8("(1 - 4) + (5 - 2)");
-    result = e.compute_expr(&t8, 1);
-    cout << ">>>> (1 - 4) + (5 - 2) result <<<< " << result << endl;
-
-    //Tokenizer t5("(1 * 4) + (5 * 2)");
-    //t5->getCurToken();
-    //t5.advanceToNext();
-    //t5->getCurToken();
-
-   /* Tokenizer t2("(3 + 4) * 6");
-    Token tok1 = t2.getCurToken();
-    cout << "Tokenizer current token: " << tok1.type << " " << tok1.value << '\n';
-    t2.advanceToNext();
-    Token tok2 = t2.getCurToken();
-    cout << "Tokenizer current token: " << tok2.type << " " << tok2.value << '\n';
-    t2.advanceToNext();
-    Token tok3 = t2.getCurToken();
-    cout << "Tokenizer current token: " << tok3.type << " " << tok3.value << '\n';
-    Token tok4 = t2.getCurToken();
-    cout << "Tokenizer current token: " << tok4.type << " " << tok4.value << '\n';
-    t2.advanceToNext();
-    Token tok5 = t2.getCurToken();
-    cout << "Tokenizer current token: " << tok5.type << " " << tok5.value << '\n';
-    t2.advanceToNext();
-    Token tok6 = t2.getCurToken();
-    cout << "Tokenizer current token: " << tok6.type << " " << tok6.value << '\n';
-    t2.advanceToNext();
-    Token tok7 = t2.getCurToken();
-    cout << "Tokenizer current token: " << tok7.type << " " << tok7.value << '\n';
-    t2.advanceToNext();
-    Token tok8 = t2.getCurToken();
-    cout << "Tokenizer current token: " << tok8.type << " " << tok8.value << '\n';
-    t2.advanceToNext();
-    Token tok9 = t2.getCurToken();
-    cout << "Tokenizer current token: " << tok9.type << " " << tok9.value << '\n';*/
-
-    return 0;
+  return 0;
 }

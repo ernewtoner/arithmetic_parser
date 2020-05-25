@@ -20,13 +20,17 @@ struct Token
 class Tokenizer {
 private:
     string expr; // Mathematical expression to tokenize
+    bool validExpression;
     regex r;
     sregex_iterator it;
     Token curToken;
-public:
-    Tokenizer(string expr);
-    ~Tokenizer();
+    bool validateExpression(string expr);
     void generateToken();
+public:
+    Tokenizer() {};
+    Tokenizer(string expr) { tokenize(expr); }
+    void tokenize(string expr);
+    bool isValidExpression() { return validExpression; }
     Token getCurToken() { return curToken; }
     void advanceToNext();
 };
