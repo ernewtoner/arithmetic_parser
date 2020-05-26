@@ -13,7 +13,7 @@ using std::endl;
 
 struct Token 
 {
-    string type;
+    string type; // Number, operator, leftparen or rightparen
     string value;
 };
 
@@ -23,11 +23,10 @@ private:
     bool validExpression;
     regex r;
     sregex_iterator it;
-    Token curToken;
+    Token curToken; // Current processed match from regex iterator
     bool validateExpression(string expr);
     void generateToken();
 public:
-    Tokenizer() {};
     Tokenizer(string expr) { tokenize(expr); }
     void tokenize(string expr);
     bool isValidExpression() { return validExpression; }

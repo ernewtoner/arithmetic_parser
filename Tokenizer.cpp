@@ -4,7 +4,7 @@ using std::remove_if;
 using std::all_of;
 using std::none_of;
 
-/* tokenize(string): Parses input string into the string regex iterator of the class, 
+/* tokenize(string): Loads input string into the string regex iterator of the class, 
 *  provided the string is a valid mathematical expression.
 *  Input: input string to be parsed as mathematical expression.
 */
@@ -29,42 +29,36 @@ void Tokenizer::tokenize(string inputStr) {
     generateToken();
 }
 
-/* isSupportedOperator(char op): Small helper function for validation */
-bool isSupportedOperator(char op) {
-    return (op == '+' || op == '-' || op == '*' || op == '/');
-}
-
-/* isSupportedOperator(char op): Small helper function for validation */
+/* tokenizerError(string): Helper function to indicate an error parsing the mathematical
+ * expression, it has been found invalid. */
 bool tokenizerError(string errMsg) {
     cout << errMsg << endl;
     return false;
 }
+/* isSupportedOperator(char): Helper function for validation. */
+bool isSupportedOperator(char op) { return (op == '+' || op == '-' || op == '*' || op == '/' || op == '^'); }
 
-/* validateExpression(string): Verifies that the input string is a valid mathematical 
-*  expression.
+/* validateExpression(string): Checks a range of conditions that would indicate the mathematical expression is 
+*  invalid before we parse it.
 *  Input: input string to validate
 *  Returns: double
 */
 bool Tokenizer::validateExpression(string expr) {
-    // Check if empty
     if (expr.length() == 0)
         return tokenizerError("Error: empty expression.");
 
-    // Check paren count
     int leftParenCount = count(expr.begin(), expr.end(), '(');
     int rightParenCount = count(expr.begin(), expr.end(), ')');
 
     if (leftParenCount != rightParenCount)
         return tokenizerError("Error: expression has an uneven number of parentheses.");
 
-    // Check if any numbers
     if (none_of(expr.begin(), expr.end(), ::isdigit))
         return tokenizerError("Error: expression contains no numbers.");
 
-    // Check number of operators and numbers, since parser doesn't support negative numbers there should not be
-    // two operators in a row.
-    int op_count = 0;
-    int num_count = 0;
+    // Check number of operators and numbers, since parser doesn't support negative number input there should 
+    // not be two operators in a row.
+    int op_count, num_count = 0;
 
     for (int i=0; i < expr.length(); i++) {
         if (i > 0 && expr[i-1] == '(' && expr[i] == ')')
@@ -73,7 +67,6 @@ bool Tokenizer::validateExpression(string expr) {
         if (isSupportedOperator(expr[i])) {
             op_count++;
 
-            // Check for two operators in a row
             if (i > 0 && isSupportedOperator(expr[i-1]))
                 return tokenizerError("Error: expression has two operators in a row and parsing negative numbers is not supported.");
         }
@@ -82,39 +75,27 @@ bool Tokenizer::validateExpression(string expr) {
     return true;
 }
 
-/* compute_expr(): Computes the value of an expression, which consists of
-*  atoms connected by operators.
-*  Input: pointer to Tokenizer object
-*  Returns: double
-*/
+/* generateToken(): Extracts current matched string from class regex iterator and codifies it in a class Token object 
+   according to its type. */
 void Tokenizer::generateToken() {
     string cur = it->str();
-    //cout << "Tokenizer generateToken() cur: [" << cur << "]\n";
 
     if (all_of(cur.begin(), cur.end(), ::isdigit))
         curToken = {"NUMBER", cur};
-    else if (cur == "+" || cur == "*" || cur == "-" || cur == "/")
+    else if (cur == "+" || cur == "*" || cur == "-" || cur == "/" || cur == "^")
         curToken = {"OPERATOR", cur};
     else if (cur == "(")
         curToken = {"LEFTPAREN", cur};
     else if (cur == ")")
         curToken = {"RIGHTPAREN", cur};
-    else {
-        cout << "Error: Token generation failed, malformed expression." << endl;
-        validExpression = false;
-    }
+    else
+        validExpression = tokenizerError("Error: Token generation failed, malformed expression.");
 }
 
-/* compute_expr(): Computes the value of an expression, which consists of
-*  atoms connected by operators.
-*  Input: pointer to Tokenizer object
-*  Returns: double
-*/
+/* advanceToNext(): Increments the regex iterator to move on to the next matched string. */
 void Tokenizer::advanceToNext() {
-    if (++it != sregex_iterator()) {
+    if (++it != sregex_iterator())
         generateToken();
-    }
-    else {
+    else 
         curToken = {"",""};
-    }
 }

@@ -1,26 +1,37 @@
 #include "Evaluator.hpp"
 #include <limits>
 #include <assert.h>
+#include <cmath>
 
 using std::string;
 using std::stol;
 using std::make_shared;
 using std::numeric_limits;
+using std::get;
+using std::tie;
+using std::pow;
 
-Evaluator::Evaluator() {
-}
-
+/* evalError(string): Helper function indicating the class encountered an error.
+*  Input: string error message to print
+*  Returns: double indicating error (infinity)
+*/
 double Evaluator::evalError(string errMsg) {
+    // Reset Tokenizer shared pointer as it is no longer needed
     internalTokenizer.reset();
     
-    if (errMsg != "default")
+    if (errMsg != "default") 
         cout << errMsg << endl << endl;
-    else
+    else 
         cout << "Invalid expression, returning error code inf." << endl << endl;
 
     return numeric_limits<double>::infinity();
 }
 
+/* eval(string): Begins evaluation by first instantiating a Tokenizer to parse the 
+*  expression then passing that to computeExpr().)
+*  Input: string containing mathematical expression
+*  Returns: a double, the result of calculation 
+*/
 double Evaluator::eval(string expr) {
     internalTokenizer = make_shared<Tokenizer>(expr);
 
@@ -34,17 +45,27 @@ double Evaluator::eval(string expr) {
     return result;
 }
 
-/* computeAtom(): Computes the value of an atom, which is either numbers 
+/******************************************************************************************
+*  The algorithm used here is called precedence climbing, a recursive descent algorithm.
+*  See https://www.engr.mun.ca/~theo/Misc/exp_parsing.htm and 
+*  https://en.wikipedia.org/wiki/Operator-precedence_parser#Precedence_climbing_method 
+*  for a lot more information.
+*  
+*  In short, the expression is evaluated as collections of nested sub-expressions each with
+*  their according precedence level.
+*******************************************************************************************/
+
+/* computeAtom(shared_ptr<Tokenizer>): Computes the value of an atom, which is either numbers 
 *  or parenthesized expressions.
-*  Input: pointer to Tokenizer object
-*  Returns: double 
+*  Input: shared_ptr to Tokenizer object
+*  Returns: a double, the result of the calculation
 */
 double Evaluator::computeAtom(shared_ptr<Tokenizer> tokenizer) {
     Token tok = tokenizer->getCurToken();
     
     if (tok.type == "LEFTPAREN") {
         tokenizer->advanceToNext();
-        double val = computeExpr(tokenizer, 1);
+        double val = computeExpr(tokenizer, 1); // 1 is the lowest precedence (+, -)
 
         if (tokenizer->getCurToken().type != "RIGHTPAREN") {
              return evalError("Unmatched left parenthesis.");
@@ -58,16 +79,16 @@ double Evaluator::computeAtom(shared_ptr<Tokenizer> tokenizer) {
     else if (tok.type == "OPERATOR")
         return evalError("Expected atom, got an operator.");
     else {
-        // Number
+        // Must be a number
         assert(tok.type == "NUMBER");
         tokenizer->advanceToNext();
         return stoll(tok.value);
     }
 }
 
-/* computeExpr(): Computes the value of an expression, which consists of
+/* computeExpr(shared_ptr<Tokenizer>, int): Computes the value of an expression, which consists of
 *  atoms connected by operators.
-*  Input: pointer to Tokenizer object
+*  Input: shared_ptr to Tokenizer object, integer indicating minimal precedence level
 *  Returns: double
 */
 double Evaluator::computeExpr(shared_ptr<Tokenizer> tokenizer, int min_prec) {
@@ -78,14 +99,18 @@ double Evaluator::computeExpr(shared_ptr<Tokenizer> tokenizer, int min_prec) {
         
         if (cur.value == "" || cur.type != "OPERATOR"
                             || opInfo.find(cur.value) == opInfo.end() // op not found
-                            || opInfo[cur.value] < min_prec) // op precedence lower than min prec
+                            || get<0>(opInfo[cur.value]) < min_prec) // op precedence lower than min prec
             break;
 
-        // Get operator's precedence and compute minimal precedence for recursive call
+        // Get operator's precedence and associativity, compute minimal precedence for recursive call
         string op = cur.value;
-        int prec = opInfo[op];
+        int prec, next_min_prec; string assoc;
+        tie(prec, assoc) = opInfo[op];
 
-        int next_min_prec = prec + 1; // implement assoc if wanted
+        if (assoc == "LEFT") 
+            next_min_prec = prec + 1;
+        else 
+            next_min_prec = prec;
 
         // Consume current token and prepare next for recursive call
         tokenizer->advanceToNext();
@@ -99,11 +124,11 @@ double Evaluator::computeExpr(shared_ptr<Tokenizer> tokenizer, int min_prec) {
 }
 
 /* computeOp(): Performs the actual arithmetic of the mathematical expression.
-*  Input: string containing operator, left and right hand side of expression
-*  Returns: double
+*  Input: string containing operator, two doubles for left and right hand side of expression
+*  Returns: double, result of the arithmetic.
 */
 double Evaluator::computeOp(string op, double lhs, double rhs) {
-    internalTokenizer.reset();
+    internalTokenizer.reset(); // Tokenizer no longer needed
 
     if (op == "+")
         return lhs + rhs;
@@ -113,6 +138,8 @@ double Evaluator::computeOp(string op, double lhs, double rhs) {
         return lhs * rhs;
     else if (op == "/")
         return lhs / rhs;
+    else if (op == "^")
+        return pow(lhs, rhs);
     else
         return evalError("Unknown operator.");
 }
